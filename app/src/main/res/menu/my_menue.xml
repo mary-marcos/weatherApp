@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/homeFragment"
+        
+        android:icon="@drawable/home_account"
+        android:iconTint="@color/amper"
+        android:title="@string/homeItem"
+
+        />
+    <item
+        android:id="@+id/favFragment"
+        android:icon="@drawable/star_circle_outline"
+        android:iconTint="@color/amper"
+        android:title="@string/favoratesItem" />
+    <item
+        android:id="@+id/settingFragment"
+        android:icon="@drawable/cogs"
+        android:iconTint="@color/amper"
+        android:title="@string/settingsItem" />
+
+    <item
+        android:id="@+id/alarmFragment"
+        android:icon="@android:drawable/ic_popup_reminder"
+        android:iconTint="@color/amper"
+        android:title="@string/alarmItem" />
+</menu>
