@@ -1,9 +1,15 @@
 package com.example.weatherforecast.model
 
+
+
+/////////////////////////////////////////
+
+
 data class CurrenWeather(
    // @PrimaryKey(autoGenerate = true)
     val id: Int,
     val coord: Coord,
+
     val weather: List<Weather>,
     val base: String,
     val main: Main,

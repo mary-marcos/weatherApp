@@ -5,72 +5,225 @@
     android:id="@+id/frameLayout3"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".settings.SettingFragment">
+    tools:context=".ui.settings.SettingFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="379dp"
-        android:layout_height="120dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="100dp"
-        android:layout_marginEnd="20dp"
-        android:backgroundTint="@color/light_bluetrans"
-        android:padding="10dp"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        app:cardCornerRadius="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.473"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:strokeColor="@color/blue"
-        app:strokeWidth="2dp">
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="379dp"
+            android:layout_height="120dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="100dp"
+            android:layout_marginEnd="20dp"
+            android:backgroundTint="@color/light_bluetrans"
+            android:padding="10dp"
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="377dp"
-            android:layout_height="109dp">
+            app:cardCornerRadius="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.473"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeColor="@color/blue"
+            app:strokeWidth="2dp">
 
-            <TextView
-                android:id="@+id/type"
-                android:layout_width="193dp"
-                android:layout_height="45dp"
-                android:layout_gravity="start"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="4dp"
-                android:padding="10dp"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="377dp"
+                android:layout_height="109dp">
 
-                android:paddingEnd="10dp"
-                android:text="@string/lang_swich"
-                android:textSize="20sp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                <TextView
+                    android:id="@+id/type"
+                    android:layout_width="193dp"
+                    android:layout_height="45dp"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="4dp"
+                    android:padding="10dp"
 
-            <RadioGroup
-                android:id="@+id/languageGroup"
-                android:layout_width="333dp"
-                android:layout_height="73dp"
-                android:orientation="horizontal"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/type">
+                    android:paddingEnd="10dp"
+                    android:text="@string/lang_swich"
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
-                <RadioButton
-                    android:id="@+id/radioButton_eng"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_weight="1"
-                    android:text="@string/en_radiobutton" />
+                <RadioGroup
+                    android:id="@+id/languageGroup"
+                    android:layout_width="333dp"
+                    android:layout_height="73dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/type">
 
-                <RadioButton
-                    android:id="@+id/radioButton_ar"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/ar_radiobutton" />
-            </RadioGroup>
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                    <RadioButton
+                        android:id="@+id/radioButton_eng"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="@string/en_radiobutton" />
+
+                    <RadioButton
+                        android:id="@+id/radioButton_ar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/ar_radiobutton" />
+                </RadioGroup>
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-    </com.google.android.material.card.MaterialCardView>
+        </com.google.android.material.card.MaterialCardView>
+
+
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="379dp"
+            android:layout_height="120dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="100dp"
+            android:layout_marginEnd="20dp"
+            android:backgroundTint="@color/light_bluetrans"
+            android:padding="10dp"
+
+            app:cardCornerRadius="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.473"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeColor="@color/blue"
+            app:strokeWidth="2dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="377dp"
+                android:layout_height="109dp">
+
+                <TextView
+                    android:id="@+id/t2"
+                    android:layout_width="193dp"
+                    android:layout_height="45dp"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="4dp"
+
+                    android:padding="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@string/gps_map_Swich"
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <RadioGroup
+                    android:id="@+id/locationGroup"
+                    android:layout_width="333dp"
+                    android:layout_height="73dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/t2">
+
+                    <RadioButton
+                        android:id="@+id/radioButton_map"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="@string/map_radiobutton" />
+
+                    <RadioButton
+                        android:id="@+id/radioButton_gps"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/gps_radiobutton" />
+                </RadioGroup>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="379dp"
+            android:layout_height="120dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="100dp"
+            android:layout_marginEnd="20dp"
+            android:backgroundTint="@color/light_bluetrans"
+            android:padding="10dp"
+
+            app:cardCornerRadius="20dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.473"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:strokeColor="@color/blue"
+            app:strokeWidth="2dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="377dp"
+                android:layout_height="109dp">
+
+                <TextView
+                    android:id="@+id/t3"
+                    android:layout_width="193dp"
+                    android:layout_height="45dp"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="4dp"
+
+                    android:padding="10dp"
+                    android:paddingEnd="10dp"
+                    android:text="@string/temp_swich"
+                    android:textSize="20sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <RadioGroup
+                    android:id="@+id/tempGroup"
+                    android:layout_width="333dp"
+                    android:layout_height="73dp"
+                    android:orientation="horizontal"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/t3">
+
+                    <RadioButton
+                        android:id="@+id/radioButton_kilven"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="@string/kilven_radiobutton" />
+                    <RadioButton
+                        android:id="@+id/radioButton_clis"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:text="@string/clizeus_radiobutton" />
+
+                    <RadioButton
+                        android:id="@+id/radioButton_fehren"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="@string/fhren_radiobutton" />
+                </RadioGroup>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+        </com.google.android.material.card.MaterialCardView>
+
+    </LinearLayout>
+
+
+
+
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

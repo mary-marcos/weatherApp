@@ -15,6 +15,7 @@
         <item name="colorSecondaryVariant">@color/blue2</item>
         <item name="colorOnSecondary">@color/light_blue</item>
         <item name="android:statusBarColor">@color/dark_blue</item>
+
     </style>
 
     <style name="Theme.WeatherForecast" parent="Base.Theme.WeatherForecast" />

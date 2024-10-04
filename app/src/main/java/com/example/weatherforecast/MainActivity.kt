@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
+import com.example.weatherforecast.data.SharePrefrenceData
 import com.example.weatherforecast.databinding.ActivityMainBinding
 import com.google.android.material.navigation.NavigationView
 
@@ -23,17 +24,21 @@ class MainActivity : AppCompatActivity() {
     private lateinit var drawerToggle: ActionBarDrawerToggle
     lateinit var binding: ActivityMainBinding
     lateinit var  navController:NavController
+    lateinit var sharedPrefrenceData:SharePrefrenceData
     private lateinit var drawerLayout: DrawerLayout
+
+
+
     override fun onStart() {
         super.onStart()
 
-        LocaleHelper.setdefault(this)
+        LocaleHelper.setdefault(sharedPrefrenceData,this)
 
     }
 
     override fun onResume() {
         super.onResume()
-        LocaleHelper.setdefault(this)
+        LocaleHelper.setdefault(sharedPrefrenceData,this)
 //        val savedLanguage = LocaleHelper.getSavedLanguage(this)
 //        Log.i("MainActivity", "$savedLanguage")
 //        LocaleHelper.setLocale(this, savedLanguage ?: "en")
@@ -43,8 +48,9 @@ class MainActivity : AppCompatActivity() {
 
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        sharedPrefrenceData=  SharePrefrenceData(this)
 
-        LocaleHelper.setdefault(this)
+        LocaleHelper.setdefault(sharedPrefrenceData,this)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -109,6 +115,8 @@ class MainActivity : AppCompatActivity() {
                     drawerLayout.closeDrawers()
                     true
                 }
+
+
                 else -> false
             }
         }

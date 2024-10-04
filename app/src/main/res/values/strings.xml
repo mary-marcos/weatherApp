@@ -7,13 +7,31 @@
 
     <string name="drawer_open">Open</string>
     <string name="drawer_close">Close</string>
-<!-- TODO: Remove or change this placeholder text -->
+    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="settingsItem">Settings</string>
     <string name="alarmItem">Alarm</string>
-    <string name="favoratesItem">Favorates</string>
+    <string name="favoratesItem">Favorites</string>
     <string name="homeItem">Home</string>
     <string name="lang_swich">Language</string>
     <string name="en_radiobutton">English</string>
     <string name="ar_radiobutton">Arapic</string>
+    <string name="degree">degree</string>
+    <string name="select_location">select location</string>
+    <string name="save_location_to_favorite"> save location to favorite</string>
+    <string name="gps_map_Swich"> Location</string>
+    <string name="gps_radiobutton">gps</string>
+    <string name="map_radiobutton">map</string>
+    <string name="temp_swich"> Temperature</string>
+    <string name="fhren_radiobutton">Fahrenheit</string>
+    <string name="clizeus_radiobutton">celsius</string>
+    <string name="kilven_radiobutton">kelvin</string>
+    <string name="wind_speed">wind speed</string>
+    <string name="cloud">cloud</string>
+    <string name="Temp">Temprture</string>
+    <string name="humidity">Humidity</string>
+    <string name="pressure">pressure</string>
+    <string name="tofavbuttin">save to favorite</string>
+    <string name="to_sharedpref">save location</string>
+
 </resources>

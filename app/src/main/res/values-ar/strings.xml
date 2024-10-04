@@ -18,4 +18,22 @@
     <string name="lang_swich">اللغه</string>
     <string name="en_radiobutton">الانجليزيه</string>
     <string name="ar_radiobutton">العربيه</string>
+    <string name="degree">درجه</string>
+    <string name="select_location">اختر الموقع</string>
+    <string name= "save_location_to_favorite">حفظ فى المفضله</string>
+
+    <string name= "gps_map_Swich"> الموقع </string>
+    <string name="gps_radiobutton">موقعى الحالى</string>
+    <string name="map_radiobutton">الخريطه</string>
+    <string name= "temp_swich"> درجه الحراره</string>
+    <string name="fhren_radiobutton">فهرنهيت</string>
+    <string name="clizeus_radiobutton">سليزيس</string>
+    <string name="kilven_radiobutton">كلفن</string>
+    <string name="wind_speed">سرعة الرياح</string>
+    <string name="cloud">السحب</string>
+    <string name="Temp">درجة الحرارة</string>
+    <string name="humidity">الرطوبة</string>
+    <string name="pressure">الضغط</string>
+    <string name="tofavbuttin">حفظ فى المفضله</string>
+    <string name="to_sharedpref">حفظ الموقع</string>
 </resources>

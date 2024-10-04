@@ -1,4 +1,4 @@
-package com.example.weatherforecast.Api
+package com.example.weatherforecast.data.Api
 
 //interface WeatherRemoteDataSource {
 //    suspend fun getWeatherForecast(lat:Double,lon:Double,lang:String): WeatherResponse

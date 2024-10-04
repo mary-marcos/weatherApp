@@ -5,18 +5,29 @@ plugins {
 }
 
 android {
+
     namespace = "com.example.weatherforecast"
     compileSdk = 34
 
     defaultConfig {
+      // buildConfigField ("String", "MAPTILER_API_KEY", "${project.findProperty("MAPTILER_API_KEY") ?: "t"}")
         applicationId = "com.example.weatherforecast"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
+        // Set the API key correctly
+     //   buildConfigField("String", "MAPTILER_API_KEY", "${project.findProperty("MAPTILER_API_KEY") ?: "default_key"}")
 
+        // buildConfigField ("String", "MAPTILER_API_KEY", "${MAPTILER_API_KEY}")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+
     }
+
+//    buildFeatures {
+//        buildConfig = true
+//    }
 
     buildTypes {
         release {
@@ -62,6 +73,10 @@ dependencies {
 
     implementation ("androidx.work:work-runtime-ktx:2.7.1")
 
+//location
+    implementation("com.google.android.gms:play-services-location:21.1.0")
+    implementation ("com.google.android.gms:play-services-maps:17.0.1")
+   // implementation ("org.maplibre.gl:android-sdk:10.0.2")
 
     //Room
     implementation ("androidx.room:room-ktx:2.6.1")
