@@ -43,7 +43,7 @@ class SharePrefrenceData(context :Context) {
 
     }
 
-    fun getSavedLanguage(context: Context): String? {
+    fun getSavedLanguage(): String? {
       //  val preferences: SharedPreferences = context.getSharedPreferences("AppPreferences", Context.MODE_PRIVATE)
       //  Log.d("TAG", "getSavedLanguage:${preferences.getString(LANGUAGE_KEY, Locale.getDefault().language)} ")
         var currentlang=sharedPreferences.getString(LANGUAGE_KEY, Locale.getDefault().language)

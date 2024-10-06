@@ -4,6 +4,8 @@ import com.example.weatherforecast.data.Api.ApiServices
 
 import com.example.weatherforecast.model.CurrenWeather
 import com.example.weatherforecast.model.ForecastWeatherResponse
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -30,27 +32,25 @@ class WeatherRemoteSourceImp(private val apiService: ApiServices) {
     }
 
 
-    suspend fun getCurrentWeather(lat: Double, lon: Double, lang: String): CurrenWeather {
+    suspend fun getCurrentWeather(lat: Double, lon: Double, lang: String): Flow<CurrenWeather> {
         ///////////// later correct
-        try {
-            return apiService.getCurrentWeather(lat, lon, apiKey, lang)
-        } catch (e: Exception) {
-            throw e
+        return flow {val result= apiService.getCurrentWeather(lat, lon, apiKey, lang)
+            emit(result)
         }
+
+
     }
 
     suspend fun getForecastWeather(
         lat: Double,
         lon: Double,
         lang: String
-    ): ForecastWeatherResponse {
+    ): Flow<ForecastWeatherResponse> {
 
-        try {
-            return apiService.getForecastWeather(lat, lon, apiKey, lang)
-        } catch (e: Exception) {
-            throw e
+        return flow {val result=  apiService.getForecastWeather(lat, lon, apiKey, lang)
+            emit(result)
         }
-    }
+        }
 
 }
 

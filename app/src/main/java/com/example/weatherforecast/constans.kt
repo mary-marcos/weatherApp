@@ -37,7 +37,7 @@ object LocaleHelper {
         return reso
     }
     fun setdefault(   sharePrefrenceData: SharePrefrenceData,context: Context): Context {
-        var language =sharePrefrenceData.getSavedLanguage(context)?:"en"
+        var language =sharePrefrenceData.getSavedLanguage()?:"en"
         var reso=  updateResources(context, language)
         sharePrefrenceData.
         saveLanguagePreference(context, language)

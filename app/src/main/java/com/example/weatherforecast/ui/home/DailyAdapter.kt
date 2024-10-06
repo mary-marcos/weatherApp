@@ -36,7 +36,7 @@ class DailyAdapter():  ListAdapter<DailyWeather, DailyAdapter.ItemViewHolder>(Di
         val current=getItem(position)
         holder.binding.day.text=current.day
         holder.binding.date.text=current.date
-        holder.binding.tempRange.text= "${current.minTemp}/${current.maxTemp}"
+        holder.binding.tempRange.text= current.minmaxTemp
 
         Glide.with(holder.itemView.context).load(current.iconImg).into(holder.binding.weatherIcon)
 //        holder.binding.

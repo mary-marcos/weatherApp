@@ -1,5 +1,6 @@
 package com.example.weatherforecast.ui.home
 
+import android.content.Context
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,11 +11,19 @@ import androidx.lifecycle.viewModelScope
 
 import com.example.weatherforecast.data.Repo.Repos
 import com.example.weatherforecast.data.Repo.WeatherRemoteSourceImp
+import com.example.weatherforecast.data.SharePrefrenceData
 import com.example.weatherforecast.model.CurrenWeather
+import com.example.weatherforecast.model.CurrentWeatherDataEntity
 import com.example.weatherforecast.model.DailyWeather
 import com.example.weatherforecast.model.ForecastWeatherData
 import com.example.weatherforecast.model.ForecastWeatherResponse
+import com.example.weatherforecast.model.HourlyWeather
+import com.example.weatherforecast.model.StateManager
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -23,135 +32,161 @@ import java.util.Locale
 class HomeViewModel( var reposiory:Repos): ViewModel() {
    // var myRepo:Repos=Repos(WeatherRemoteSourceImp.getInstance())
 
-   private var _currentWeather=MutableLiveData<CurrenWeather>()
-    var currentWeather : LiveData<CurrenWeather> = _currentWeather
+   private var _currentWeather= MutableStateFlow<StateManager<CurrentWeatherDataEntity>>(StateManager.Loading)
+    var currentWeather : StateFlow<StateManager<CurrentWeatherDataEntity>> = _currentWeather
 
     private var _forecastWeather=MutableLiveData<ForecastWeatherResponse>()
     var forecastWeather : LiveData<ForecastWeatherResponse> = _forecastWeather
 
 
-    private var _hourlyForecastWeather=MutableLiveData<List<ForecastWeatherData>>()
-    var hourlyForecastWeather : LiveData<List<ForecastWeatherData>> = _hourlyForecastWeather
+    private var _hourlyForecastWeather = MutableStateFlow<StateManager<List<HourlyWeather>>>(StateManager.Loading)
+    var hourlyForecastWeather :       StateFlow<StateManager<List<HourlyWeather>>>   = _hourlyForecastWeather
 
-    private var _dailyForecastWeather=MutableLiveData<List<DailyWeather>>()
-    var dailyForecastWeather : LiveData<List<DailyWeather>> = _dailyForecastWeather
-
-
+    private var _dailyForecastWeather= MutableStateFlow<StateManager<List<DailyWeather>>>(StateManager.Loading)
+    var dailyForecastWeather :  StateFlow<StateManager<List<DailyWeather>>>  = _dailyForecastWeather
 
 
-    fun getCurrentWeatherData(latitude: Double, longitude: Double){
+    fun getCurrentWeatherData(latitude: Double, longitude: Double,context: Context) {
+        var sharePrefrenceData=SharePrefrenceData(context)
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                var result= reposiory.getCurrentWeather(latitude,longitude,"ar")
-
-                    val weatherData =result
-                    withContext(Dispatchers.Main) {
-                        _currentWeather.postValue(weatherData!!)
-                    }
-
-            }catch (e:Exception){}
 
 
+            reposiory.getCurrentWeather(latitude, longitude, sharePrefrenceData.getSavedLanguage()?:"en").map { data ->
+                val currentEntity = CurrentWeatherDataEntity(
+                    city = data.name,
+                    temp = sharePrefrenceData.getFormatedUnit(data.main.temp),
+                    windSpeed = data.wind.speed.toString(),
+                    clouds = data.clouds.all.toString(),
+                    humidity = data.main.humidity.toString(),
+                    id = data.id,
+                    description = data.weather.get(0).description,
+                    iconCode = "https://openweathermap.org/img/wn/${data.weather.get(0).icon}@2x.png",
+                    feelsLike = data.main.feels_like.toString(),
+                    pressure = data.main.pressure.toString()
+
+                )
+                currentEntity
+            }
+                .catch {
+                    _currentWeather.value = StateManager.Error("errorr message")
+                }
+                .collect { data ->
+
+                    _currentWeather.value = StateManager.Success(data)
+                }
         }
-
     }
 
 
- fun getForecastWeather(
+    fun getForecastWeather(
         lat: Double,
         lon: Double,
-        lang: String
+        context: Context
     ) {
+        val sharePrefrenceData = SharePrefrenceData(context)
+
+
         viewModelScope.launch(Dispatchers.IO) {
-            try {
 
-                var result= reposiory.getForecastWeather(lat,lon,lang)
-               var updatedlist=formatedWeather(result)
+            reposiory.getForecastWeather(lat, lon, sharePrefrenceData.getSavedLanguage() ?: "en")
+                .map { response ->
 
-                withContext(Dispatchers.Main) {
-                    getHourlyWeather(updatedlist)
-                    getDailyWeather(updatedlist)
-                    _forecastWeather.postValue(result)
+                    response.list.map { forecastData ->
 
+                        val weatherIconId = forecastData.weather.firstOrNull()?.icon
+
+
+                        val iconUrl = "https://openweathermap.org/img/wn/${weatherIconId}@2x.png"
+
+
+                      val formattedDate = formatDate(forecastData.dt_txt)
+
+
+                        forecastData.copy(
+                           dt_txt = formattedDate,
+                            weather = forecastData.weather.map {
+                                it.copy(icon = iconUrl)
+                            }
+                        )
+                    }
+                }.catch {
+                    _hourlyForecastWeather.value = StateManager.Error("errorr message")
+                 _dailyForecastWeather.value = StateManager.Error("errorr message")
                 }
-            }catch (e:Exception){}
 
+                .collect { updatedList: List<ForecastWeatherData> ->
 
+                    getHourlyWeather(updatedList, sharePrefrenceData)
+                    getDailyWeather(updatedList, sharePrefrenceData)
+                }
         }
     }
 
 
 
-    ////////
 
-    private fun formatedWeather(response: ForecastWeatherResponse): List<ForecastWeatherData> {
-        val updatedList = response.list.map { forecastData ->
-            // Get the first weather icon
-            val weatherIconId = forecastData.weather.firstOrNull()?.icon
-            // Construct the URL for the icon
-            val iconUrl = "https://openweathermap.org/img/wn/${weatherIconId}@2x.png"
 
-            // Format the date string
-            val formattedDate = formatDate(forecastData.dt_txt)
 
-            // Return a new ForecastWeatherData with formatted date and updated icon URL
-            forecastData.copy(
-                dt_txt = formattedDate, // Update the dt_txt with the formatted date
-                weather = forecastData.weather.map {
-                    it.copy(icon = iconUrl) // Update the weather icon URL
-                }
-            )
-        }
-        return updatedList
-    }
 
-    // Function to format the date
+
+
     private fun formatDate(dtTxt: String): String {
         val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val outputFormat = SimpleDateFormat("EEE, MM/dd/yyyy", Locale.getDefault()) // Include day name
-        val date = inputFormat.parse(dtTxt) // Parse the input date string
-        return outputFormat.format(date) // Format the date to the desired output format
+        val outputFormat = SimpleDateFormat("HH:mm, EEE, MM/dd/yyyy", Locale.getDefault())
+        val date = inputFormat.parse(dtTxt)
+        return outputFormat.format(date)
     }
-    private fun getHourlyWeather(list: List<ForecastWeatherData>): List<ForecastWeatherData> {
-        // Get the date of the first item in the list
-        val firstItemDate = list.firstOrNull()?.dt_txt?.substring(0, 10) ?: return emptyList()
 
-        // Filter all items where the date matches the date of the first item
-        val result = list.filter { forecast ->
-            forecast.dt_txt.substring(0, 10) == firstItemDate
+    private fun getHourlyWeather(list: List<ForecastWeatherData>,sharedpref: SharePrefrenceData): List<HourlyWeather> {
+        val hourlyWeatherList = mutableListOf<HourlyWeather>()
+
+
+        val firstItemDate = list.firstOrNull()?.dt_txt?.substring(5, 10) ?: return emptyList()
+
+
+        val filteredForecasts = list.filter { forecast ->
+            forecast.dt_txt.substring(5, 10) == firstItemDate
         }
 
-        // Post the result to LiveData or any observer you are using
-        _hourlyForecastWeather.postValue(result)
+        val result = filteredForecasts.map { forecast ->
+
+            val hour = forecast.dt_txt.substring(0, 4)
+            val temp = sharedpref.getFormatedUnit( forecast.main.temp )
+            val iconUrl = forecast.weather.firstOrNull()?.icon ?: ""
+
+
+            HourlyWeather(
+                hour = hour,
+                Temp = temp,
+                iconImg = iconUrl
+            )
+        }
+
+
+        _hourlyForecastWeather.value = StateManager.Success(result)
+
 
         return result
     }
 
-    fun getDailyWeather(weatherList: List<ForecastWeatherData>): List<DailyWeather> {
-        // Group by date (the date is already formatted as "EEE, MM/dd/yyyy")
-        val groupedByDay = weatherList.groupBy { it.dt_txt } // Extract the date part
 
-        // Prepare the list for daily weather
+    fun getDailyWeather(weatherList: List<ForecastWeatherData>,sharedpref:SharePrefrenceData): List<DailyWeather> {
+
+        val groupedByDay = weatherList.groupBy { it.dt_txt.substring(5) }
         val dailyWeatherList = mutableListOf<DailyWeather>()
-
-        // Process each group
         groupedByDay.forEach { (date, weatherItems) ->
-            // Get the day name from the formatted date
-            val day = date.split(", ")[0] // Extract the day name from the formatted date
+            val day = date.split(", ")[1]
 
-            // Find min and max temperatures for the day
-            val minTemp = weatherItems.minOf { it.main.temp_min }
-            val maxTemp = weatherItems.maxOf { it.main.temp_max }
+            val minTemp =  sharedpref.getFormatedUnit(weatherItems.minOf { it.main.temp_min })
+            val maxTemp = sharedpref.getFormatedUnit(weatherItems.maxOf { it.main.temp_max })
 
-            // Get the icon URL for the weather icon from the first item
             val weatherIconId = weatherItems.first().weather.first().icon
-       //     val iconImg = "https://openweathermap.org/img/wn/${weatherIconId}@2x.png" // Construct the URL for the icon
 
-            // Add a DailyWeather object to the list
-            dailyWeatherList.add(DailyWeather(date, day, minTemp, maxTemp, weatherIconId))
+            dailyWeatherList.add(DailyWeather(date, day,"$minTemp/$maxTemp", weatherIconId))
         }
         Log.d("TAG", "getDailyWeather: ${dailyWeatherList}")
-        _dailyForecastWeather.postValue(dailyWeatherList)
+        _dailyForecastWeather.value = StateManager.Success(dailyWeatherList)
+
         return dailyWeatherList
     }
 

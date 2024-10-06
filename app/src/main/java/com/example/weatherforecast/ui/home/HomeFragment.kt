@@ -18,10 +18,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.weatherforecast.data.Repo.Repos
@@ -32,6 +33,9 @@ import com.example.weatherforecast.data.SharePrefrenceData
 import com.example.weatherforecast.databinding.FragmentHomeBinding
 import com.example.weatherforecast.model.DailyWeather
 import com.example.weatherforecast.model.ForecastWeatherData
+import com.example.weatherforecast.model.HourlyWeather
+import com.example.weatherforecast.model.StateManager
+import com.example.weatherforecastapplication.NetworkChangeListener
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -39,12 +43,11 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class HomeFragment : Fragment() {
+
     val My_LOCATION_PERMISSION_ID = 5005
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
 lateinit var viewModel:HomeViewModel
@@ -53,15 +56,27 @@ lateinit var viewModel:HomeViewModel
     lateinit var dailyAdapter: DailyAdapter
     lateinit var binding: FragmentHomeBinding
     lateinit var sharedpref:SharePrefrenceData
+    private lateinit var networkChangeListener: NetworkChangeListener
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         sharedpref=SharePrefrenceData(requireContext())
+
+
+
     }
 
     override fun onStart() {
         super.onStart()
 
-        observeLatLng()
+        networkChangeListener.register()
+
+    }
+    override fun onStop() {
+        super.onStop()
+        networkChangeListener.unregister()
     }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,9 +88,17 @@ lateinit var viewModel:HomeViewModel
         var factory:HomeFactory=HomeFactory(Repos.getInstance(WeatherRemoteSourceImp.getInstance()))
 
         viewModel = ViewModelProvider(this,factory)[HomeViewModel::class.java]
-         observeCurrentweather()
+       networkChangeListener = NetworkChangeListener(
+            context = requireContext(),
+            onNetworkAvailable = {
+                observeLatLng()
+                                 }, //
+            onNetworkLost = {
+            }
 
-        return view
+       )
+
+            return view
     }
 
 
@@ -96,115 +119,130 @@ lateinit var viewModel:HomeViewModel
                  layoutManager = LinearLayoutManager(context)
             }
 
-        var items = listOf<ForecastWeatherData>()
+        var items = listOf<HourlyWeather>()
         hourlyAdapter.submitList(items)
 
         var items2 = listOf<DailyWeather>()
        dailyAdapter.submitList(items2)
 
-        val networkCallback = object : ConnectivityManager.NetworkCallback() {
 
-            override fun onAvailable(network: Network) {
-                super.onAvailable(network)
-                Toast.makeText(requireContext(), "Internet back", Toast.LENGTH_SHORT).show()
+        viewLifecycleOwner.lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
 
-             //   viewModel.get(44.34, 10.99,"en")
+                // Collect current weather data
+                launch {  viewModel.dailyForecastWeather.collect { result ->
+                    when (result) {
+                        is StateManager.Success -> {
+                            val dailyData = result.data
+                            dailyAdapter.submitList(dailyData)
+                        }
+                        is StateManager.Loading -> {
+                            Toast.makeText(requireContext(), "Loading daily forecast...", Toast.LENGTH_SHORT).show()
+                        }
+                        is StateManager.Error -> {
+                            val errorMessage = result.message ?: "Failed to load daily forecast"
+                            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } }
 
-//                lifecycleScope.launch(Dispatchers.IO) {
-//                    try {
-//                        val apiKey = "fafa4312e27b3dc30f42d0b6d3eccabf"
-//                        val response = RetrofitHelper.apiInstance.getCurrentWeather(44.34, 10.99, apiKey, "en")
-//
-//                        // Check if the response is successful
-//                        if (response.isSuccessful) {
-//
-//                            val weatherData = response.body()
-//
-//
-//                            withContext(Dispatchers.Main) {
-//                                Toast.makeText(requireContext(), "response.isSuccessful", Toast.LENGTH_SHORT).show()
-//
-//                                if (weatherData != null) {
-//                                    binding.city.text = weatherData.name
-//                                } else {
-//                                    Toast.makeText(requireContext(), "No data available", Toast.LENGTH_SHORT).show()
-//                                }
-//                            }
-//                        } else {
-//                            withContext(Dispatchers.Main) {
-//                                Toast.makeText(requireContext(), "Failed to fetch data", Toast.LENGTH_SHORT).show()
-//                            }
-//                        }
-//                    } catch (e: Exception) {
-//
-//                        withContext(Dispatchers.Main) {
-//                            Toast.makeText(requireContext(), "An error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
-//                        }
-//                    }
-//                }
+
+                launch { viewModel.currentWeather.collect { result ->
+                    when (result) {
+                        is StateManager.Success -> {
+                            val weatherData = result.data
+
+                                // Bind data to UI
+                                binding.weatherDesc.text = weatherData.description
+                                binding.windSpeed.text = weatherData.windSpeed
+                                binding.temp.text = weatherData.temp
+                                binding.humidityyy.text = "${weatherData.humidity}%"
+                                binding.pressure.text = weatherData.pressure
+                                binding.cloudssss.text = "${weatherData.clouds}%"
+                                binding.city.text = weatherData.city
+                                binding.temppp.text = weatherData.temp
+                                Glide.with(requireActivity()).load(weatherData.iconCode).into(binding.imageView2)
+
+                                // Hide progress bar
+                                binding.homeProgressBar.visibility = View.GONE
+
+                        }
+                        is StateManager.Loading -> {
+                            binding.homeProgressBar.visibility = View.VISIBLE
+                            Toast.makeText(requireContext(), "Loading current weather...", Toast.LENGTH_SHORT).show()
+                        }
+                        is StateManager.Error -> {
+                            binding.homeProgressBar.visibility = View.GONE
+                            val errorMessage = result.message ?: "An error occurred"
+                            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }}
+
+
+launch {  viewModel.hourlyForecastWeather.collect { result ->
+    when (result) {
+        is StateManager.Success -> {
+            val hourlyData = result.data
+            if (hourlyData != null) {
+
+                hourlyAdapter.submitList(hourlyData)
             }
+        }
+        is StateManager.Loading -> {
+            Toast.makeText(requireContext(), "Loading hourly forecast...", Toast.LENGTH_SHORT).show()
+        }
+        is StateManager.Error -> {
+            val errorMessage = result.message ?: "Failed to load hourly forecast"
+            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+        }
+    }
+} }
 
-            override fun onCapabilitiesChanged(
-                network: Network,
-                networkCapabilities: NetworkCapabilities
-            ) {
-                super.onCapabilitiesChanged(network, networkCapabilities)
-                val unmetered = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED)
-            }
 
-            override fun onLost(network: Network) {
-                super.onLost(network)
-                Toast.makeText(requireContext(),"check network",Toast.LENGTH_SHORT).show()
+                // Collect hourly forecast data
+
             }
         }
 
-        val connectivityManager1 = requireContext().getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        connectivityManager1.registerDefaultNetworkCallback(networkCallback)
+
 
     }
-    private fun observeCurrentweather() {
-        viewModel.currentWeather.observe(viewLifecycleOwner,Observer{
-            binding.weatherDesc.text=it.weather.get(0).description
-            binding.windSpeed.text=it.wind.speed.toString()+"m/s"
-            binding.temp.text=it.main.temp.toString()
-            binding.humidityyy.text=it.main.humidity.toString()+"%"
-            binding.pressure.text=it.main.pressure.toString()
-            binding.cloudssss.text=it.clouds.all.toString()+"%"
-            binding.city.text=it.name
-            binding.temp.text=it.main.temp.toString()
-            Glide.with(this).load(it.weather.get(0).icon).into(binding.imageView2)
-            if (it!=null){ binding.homeProgressBar.visibility= View.GONE}
-
-
-        }
-        )
-
-        viewModel.hourlyForecastWeather.observe(viewLifecycleOwner,Observer{
-            var items = it
-            hourlyAdapter.submitList(items)
-
-        }
-        )
-
-        viewModel.dailyForecastWeather.observe(viewLifecycleOwner,Observer{
-            var items = it
-            dailyAdapter.submitList(items)
-
-        }
-        )
-
-    }
+//    private fun observeCurrentweather() {
+//        viewModel.currentWeather.observe(viewLifecycleOwner,Observer{
+//            binding.weatherDesc.text=it.weather.get(0).description
+//            binding.windSpeed.text=it.wind.speed.toString()+"m/s"
+//            binding.temp.text=it.main.temp.toString()
+//            binding.humidityyy.text=it.main.humidity.toString()+"%"
+//            binding.pressure.text=it.main.pressure.toString()
+//            binding.cloudssss.text=it.clouds.all.toString()+"%"
+//            binding.city.text=it.name
+//            binding.temp.text=it.main.temp.toString()
+//            Glide.with(this).load(it.weather.get(0).icon).into(binding.imageView2)
+//            if (it!=null){ binding.homeProgressBar.visibility= View.GONE}
+//
+//
+//        }
+//        )
+//
+//        viewModel.hourlyForecastWeather.observe(viewLifecycleOwner,Observer{
+//            var items = it
+//            hourlyAdapter.submitList(items)
+//
+//        }
+//        )
+//
+//        viewModel.dailyForecastWeather.observe(viewLifecycleOwner,Observer{
+//            var items = it
+//            dailyAdapter.submitList(items)
+//
+//        }
+//        )
+//
+//    }
 
 
     private fun observeLatLng() {
-//        if (sharedpref.getLocationMode()=="GPS"){
-//            getLocation()
-//        }
-//        val savedLatLng = sharedpref.getLatLng()
-//        if (savedLatLng != null) {
-//            latLng = savedLatLng
-//            viewModel.getWeatherData(savedLatLng.latitude, savedLatLng.longitude)
-//        }
 
       var b=  sharedpref.getLocationMode()
    Toast.makeText(requireContext(),b,Toast.LENGTH_SHORT).show()
@@ -213,10 +251,11 @@ lateinit var viewModel:HomeViewModel
             val savedLatLng = sharedpref.getLatLng()
             if (savedLatLng != null) {
                 latLng = savedLatLng
-                viewModel.getCurrentWeatherData(savedLatLng.latitude, savedLatLng.longitude)
-                viewModel.getForecastWeather(savedLatLng.latitude, savedLatLng.longitude, "en")
+                viewModel.getCurrentWeatherData(savedLatLng.latitude, savedLatLng.longitude,requireContext())
+                viewModel.getForecastWeather(savedLatLng.latitude, savedLatLng.longitude,requireContext())
         } else{Toast.makeText(requireContext(),"check setting and chose location from map ",Toast.LENGTH_SHORT).show()}
-        } else{getLocation()}}
+        }
+    else{getLocation()}}
 
 
 
@@ -293,8 +332,8 @@ lateinit var viewModel:HomeViewModel
                     val longit = location.lastLocation?.longitude
                     val latit = location.lastLocation?.latitude
                     if (longit != null && latit != null) {
-                        viewModel.getCurrentWeatherData(latit, longit)
-                        viewModel.getForecastWeather(latit, longit, "en")
+                        viewModel.getCurrentWeatherData(latit, longit,requireContext())
+                        viewModel.getForecastWeather(latit, longit, requireContext())
                     }
                 }
             }, Looper.getMainLooper()

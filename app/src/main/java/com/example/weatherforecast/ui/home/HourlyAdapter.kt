@@ -9,31 +9,27 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.weatherforecast.databinding.ItemHourlyBinding
 import com.example.weatherforecast.model.ForecastWeatherData
+import com.example.weatherforecast.model.HourlyWeather
 
-class HourlyAdapter():  ListAdapter<ForecastWeatherData, HourlyAdapter.ItemViewHolder>(DiffCallback())  {
+class HourlyAdapter():  ListAdapter<HourlyWeather, HourlyAdapter.ItemViewHolder>(DiffCallback())  {
     lateinit var binding: ItemHourlyBinding
     class ItemViewHolder(var binding: ItemHourlyBinding) : RecyclerView.ViewHolder(binding.root) {
-//       val tittle:TextView=itemView.findViewById<TextView>(R.id.tittle_tv)
-//        val description:TextView=itemView.findViewById<TextView>(R.id.descrip_tv)
-//        val card:CardView=itemView.findViewById(R.id.cardView)
-//        val productImage: ImageView= itemView.findViewById(R.id.prod_image)
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         val inflater : LayoutInflater = parent.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        //parent.context.getSystemService(context.LAYOUT_INF)
-        //LayoutInflater.from(parent.context).inflate(R.layout.product_item, parent, false)
         binding=ItemHourlyBinding.inflate(inflater,parent,false)
         return ItemViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val current=getItem(position)
-        holder.binding.tvTime.text=current.dt_txt.toString()
+        holder.binding.tvTime.text=current.hour
       //  tittleTv.text=current.title
-        holder.binding.tvTemperature.text=current.main.temp.toString()
+        holder.binding.tvTemperature.text=current.Temp
 
-        Glide.with(holder.itemView.context).load(current.weather.get(0).icon).into(holder.binding.IconView)
+        Glide.with(holder.itemView.context).load(current.iconImg).into(holder.binding.IconView)
 //        holder.binding.
 //        cardView.setOnClickListener { listen.listener(current)
         }
@@ -49,12 +45,12 @@ class HourlyAdapter():  ListAdapter<ForecastWeatherData, HourlyAdapter.ItemViewH
 
 
 
-class  DiffCallback : DiffUtil.ItemCallback<ForecastWeatherData>(){
-    override fun areItemsTheSame(oldItem: ForecastWeatherData, newItem: ForecastWeatherData): Boolean {
+class  DiffCallback : DiffUtil.ItemCallback<HourlyWeather>(){
+    override fun areItemsTheSame(oldItem: HourlyWeather, newItem: HourlyWeather): Boolean {
         return oldItem === newItem
     }
 
-    override fun areContentsTheSame(oldItem: ForecastWeatherData, newItem: ForecastWeatherData): Boolean {
+    override fun areContentsTheSame(oldItem: HourlyWeather, newItem: HourlyWeather): Boolean {
         return oldItem == newItem
     }
 }
