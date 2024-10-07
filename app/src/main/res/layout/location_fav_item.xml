@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+
+    <data>
+        <variable
+            name="favlocation"
+            type="com.example.weatherforecast.model.FavItem" />
+
+<!--        <variable-->
+<!--            name="action"-->
+<!--            type="com.example.weatherforecast.ui.favorate.onFavClicked" />-->
+<!--        -->
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="20dp"
+        app:strokeWidth="2dp"
+        app:strokeColor="@color/blue"
+        android:layout_margin="10dp"
+        android:padding="10dp"
+
+        android:backgroundTint="@color/light_blue"
+        >
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{favlocation.addressName}"
+            android:layout_marginEnd="32dp"
+            android:paddingEnd="10dp"
+            android:textSize="25sp"
+            android:layout_gravity="start"
+            android:padding="10dp"
+
+            />
+
+        <ImageView
+            android:id="@+id/deleteIcon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_gravity="end|center_vertical"
+            android:padding="10dp"
+            android:src="@android:drawable/ic_menu_delete" />
+
+
+
+
+    </com.google.android.material.card.MaterialCardView>
+</layout>

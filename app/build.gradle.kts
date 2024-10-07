@@ -1,7 +1,9 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
+    id("androidx.navigation.safeargs")
     id("kotlin-kapt")
+
 }
 
 android {
@@ -86,4 +88,12 @@ dependencies {
   //  lifecycle,stateflow
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.6")
     implementation ("androidx.lifecycle:lifecycle-livedata-ktx:2.5.1")
+
+    implementation ("androidx.lifecycle:lifecycle-extensions:2.2.0")
+    implementation ("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
+    //nav
+//
+//    implementation ("androidx.navigation:navigation-fragment:2.7.6")
+//    implementation ("androidx.navigation:navigation-ui:2.7.6")
+
 }
