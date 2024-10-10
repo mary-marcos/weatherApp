@@ -47,6 +47,7 @@ import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import com.example.weatherforecast.model.getweatherIconResourceId
 
 
 class HomeFragment : Fragment() {
@@ -59,7 +60,7 @@ lateinit var viewModel:HomeViewModel
     lateinit var dailyAdapter: DailyAdapter
     lateinit var binding: FragmentHomeBinding
     lateinit var sharedpref:SharePrefrenceData
-    private lateinit var networkChangeListener: NetworkChangeListener
+   // private lateinit var networkChangeListener: NetworkChangeListener
 
 
 
@@ -71,20 +72,25 @@ lateinit var viewModel:HomeViewModel
 
     }
 
+    override fun onResume() {
+        super.onResume()
+        checkfromisFv()
+    }
+
     override fun onStart() {
         super.onStart()
-
-        networkChangeListener.register()
+        checkfromisFv()
+     //   networkChangeListener.register()
 
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        networkChangeListener.unregister()
+      //  networkChangeListener.unregister()
     }
     override fun onStop() {
         super.onStop()
-        networkChangeListener.unregister()
+      //  networkChangeListener.unregister()
     }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -96,15 +102,6 @@ lateinit var viewModel:HomeViewModel
         var factory:HomeFactory=HomeFactory(Repos.getInstance(WeatherRemoteSourceImp.getInstance(), LocalSource.getInstance(requireContext())))
 
         viewModel = ViewModelProvider(this,factory)[HomeViewModel::class.java]
-       networkChangeListener = NetworkChangeListener(
-            context = requireContext(),
-            onNetworkAvailable = {
-                checkfromisFv()
-                                 }, //
-            onNetworkLost = {
-            }
-
-       )
 
             return view
     }
@@ -134,6 +131,15 @@ lateinit var viewModel:HomeViewModel
        dailyAdapter.submitList(items2)
 
 
+        observeData()
+
+        checkfromisFv()
+
+    }
+
+
+    fun observeData(){
+
         viewLifecycleOwner.lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
 
@@ -145,7 +151,7 @@ lateinit var viewModel:HomeViewModel
                             dailyAdapter.submitList(dailyData)
                         }
                         is StateManager.Loading -> {
-                         //   Toast.makeText(requireContext(), "Loading daily forecast...", Toast.LENGTH_SHORT).show()
+                            //   Toast.makeText(requireContext(), "Loading daily forecast...", Toast.LENGTH_SHORT).show()
                         }
                         is StateManager.Error -> {
                             val errorMessage = result.message ?: "Failed to load daily forecast"
@@ -160,24 +166,26 @@ lateinit var viewModel:HomeViewModel
                         is StateManager.Success -> {
                             val weatherData = result.data
 
-                                // Bind data to UI
-                                binding.weatherDesc.text = weatherData.description
-                                binding.windSpeed.text = weatherData.windSpeed
-                                binding.temp.text = weatherData.temp
-                                binding.humidityyy.text = "${weatherData.humidity}%"
-                                binding.pressure.text = weatherData.pressure
-                                binding.cloudssss.text = "${weatherData.clouds}%"
-                                binding.city.text = weatherData.city
-                                binding.temppp.text = weatherData.temp
-                                Glide.with(requireActivity()).load(weatherData.iconCode).into(binding.imageView2)
+                            // Bind data to UI
+                            binding.weatherDesc.text = weatherData.description
+                            binding.windSpeed.text = weatherData.windSpeed
+                            binding.temp.text = weatherData.temp
+                            binding.humidityyy.text = "${weatherData.humidity}%"
+                            binding.pressure.text = weatherData.pressure
+                            binding.cloudssss.text = "${weatherData.clouds}%"
+                            binding.city.text = weatherData.city
+                            binding.temppp.text = weatherData.temp
+                           // Glide.with(requireActivity()).load(weatherData.iconCode).into(binding.imageView2)
 
-                                // Hide progress bar
-                                binding.homeProgressBar.visibility = View.GONE
+                            weatherData.iconCode?.let { getweatherIconResourceId(it) }
+                                ?.let { binding.imageView2.setImageResource(it) }
+                            // Hide progress bar
+                            binding.homeProgressBar.visibility = View.GONE
 
                         }
                         is StateManager.Loading -> {
                             binding.homeProgressBar.visibility = View.VISIBLE
-                         //   Toast.makeText(requireContext(), "Loading current weather...", Toast.LENGTH_SHORT).show()
+                            //   Toast.makeText(requireContext(), "Loading current weather...", Toast.LENGTH_SHORT).show()
                         }
                         is StateManager.Error -> {
                             binding.homeProgressBar.visibility = View.GONE
@@ -188,33 +196,31 @@ lateinit var viewModel:HomeViewModel
                 }}
 
 
-launch {  viewModel.hourlyForecastWeather.collect { result ->
-    when (result) {
-        is StateManager.Success -> {
-            val hourlyData = result.data
-            if (hourlyData != null) {
+                launch {  viewModel.hourlyForecastWeather.collect { result ->
+                    when (result) {
+                        is StateManager.Success -> {
+                            val hourlyData = result.data
+                            if (hourlyData != null) {
 
-                hourlyAdapter.submitList(hourlyData)
-            }
-        }
-        is StateManager.Loading -> {
-            Toast.makeText(requireContext(), "Loading hourly forecast...", Toast.LENGTH_SHORT).show()
-        }
-        is StateManager.Error -> {
-            val errorMessage = result.message ?: "Failed to load hourly forecast"
-            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
-        }
-    }
-} }
+                                hourlyAdapter.submitList(hourlyData)
+                            }
+                        }
+                        is StateManager.Loading -> {
+                            Toast.makeText(requireContext(), "Loading hourly forecast...", Toast.LENGTH_SHORT).show()
+                        }
+                        is StateManager.Error -> {
+                            val errorMessage = result.message ?: "Failed to load hourly forecast"
+                            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+                        }
+
+                    }
+                } }
 
 
                 // Collect hourly forecast data
 
             }
         }
-
-
-
     }
 
     private fun checkfromisFv() {
@@ -236,8 +242,8 @@ launch {  viewModel.hourlyForecastWeather.collect { result ->
     }
     private fun observeLatLng() {
 
-      var b=  sharedpref.getLocationMode()
-   Toast.makeText(requireContext(),b,Toast.LENGTH_SHORT).show()
+//      var b=  sharedpref.getLocationMode()
+//   Toast.makeText(requireContext(),b,Toast.LENGTH_SHORT).show()
 
     if(sharedpref.getLocationMode()=="Map"){
             val savedLatLng = sharedpref.getLatLng()
@@ -319,7 +325,7 @@ launch {  viewModel.hourlyForecastWeather.collect { result ->
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
         fusedLocationProviderClient.requestLocationUpdates(
-            LocationRequest.Builder(90000).apply { setPriority(Priority.PRIORITY_HIGH_ACCURACY) }.build(),
+            LocationRequest.Builder(180000).apply { setPriority(Priority.PRIORITY_HIGH_ACCURACY) }.build(),
             object : LocationCallback() {
                 override fun onLocationResult(location: LocationResult) {
                     super.onLocationResult(location)

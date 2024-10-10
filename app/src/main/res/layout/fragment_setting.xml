@@ -11,6 +11,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:background="@drawable/sky"
         android:orientation="vertical">
 
         <com.google.android.material.card.MaterialCardView
@@ -21,6 +22,7 @@
             android:layout_marginEnd="20dp"
             android:backgroundTint="@color/light_bluetrans"
             android:padding="10dp"
+            android:layout_gravity="center_horizontal"
 
             app:cardCornerRadius="20dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -32,7 +34,10 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="377dp"
-                android:layout_height="109dp">
+                android:layout_height="109dp"
+                android:layout_gravity="center"
+
+                >
 
                 <TextView
                     android:id="@+id/type"
@@ -89,7 +94,7 @@
             android:layout_marginEnd="20dp"
             android:backgroundTint="@color/light_bluetrans"
             android:padding="10dp"
-
+            android:layout_gravity="center_horizontal"
             app:cardCornerRadius="20dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.473"
@@ -155,6 +160,7 @@
             android:layout_marginEnd="20dp"
             android:backgroundTint="@color/light_bluetrans"
             android:padding="10dp"
+            android:layout_gravity="center_horizontal"
 
             app:cardCornerRadius="20dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -166,6 +172,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="377dp"
+                android:layout_gravity="center"
                 android:layout_height="109dp">
 
                 <TextView

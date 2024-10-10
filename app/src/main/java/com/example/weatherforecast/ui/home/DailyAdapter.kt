@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide
 import com.example.weatherforecast.databinding.ItemHourlyBinding
 import com.example.weatherforecast.model.DailyWeather
 import com.example.weatherforecast.model.ForecastWeatherData
+import com.example.weatherforecast.model.getweatherIconResourceId
 
 class DailyAdapter():  ListAdapter<DailyWeather, DailyAdapter.ItemViewHolder>(DiffCallback1())  {
     lateinit var binding: DailyItemBinding
@@ -38,7 +39,10 @@ class DailyAdapter():  ListAdapter<DailyWeather, DailyAdapter.ItemViewHolder>(Di
         holder.binding.date.text=current.date
         holder.binding.tempRange.text= current.minmaxTemp
 
-        Glide.with(holder.itemView.context).load(current.iconImg).into(holder.binding.weatherIcon)
+        current.iconImg?.let { getweatherIconResourceId(it) }
+            ?.let { binding.weatherIcon.setImageResource(it) }
+
+       // Glide.with(holder.itemView.context).load(current.iconImg).into(holder.binding.weatherIcon)
 //        holder.binding.
     //    cardView.setOnClickListener { listen.listener(current)
     }

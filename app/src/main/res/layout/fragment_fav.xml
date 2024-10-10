@@ -8,12 +8,14 @@
     tools:context=".ui.favorate.FavFragment">
 
     <androidx.recyclerview.widget.RecyclerView
+
         android:layout_marginBottom="60dp"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="100dp"
         android:id="@+id/favRecyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:listitem="@layout/location_fav_item"
+        android:background="@drawable/sky"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         android:orientation="vertical" />
     <ProgressBar

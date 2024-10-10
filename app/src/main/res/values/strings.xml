@@ -33,5 +33,13 @@
     <string name="pressure">pressure</string>
     <string name="tofavbuttin">save to favorite</string>
     <string name="to_sharedpref">save location</string>
+    <string name="alarm"> alarm</string>
+    <string name="notification"> notification</string>
+    <string name="select_duration"> select_duration</string>
+    <string name="enable_alert"> enable_alert</string>
+    <string name="add_alert"> add_alert</string>
+    <string name="dismiss"> dismiss</string>
+
+    add_alert
 
 </resources>

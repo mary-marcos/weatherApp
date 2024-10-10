@@ -16,8 +16,20 @@ import retrofit2.converter.gson.GsonConverterFactory
 //
 //}
 
-class WeatherRemoteSourceImp(private val apiService: ApiServices) {
-    val apiKey = "fafa4312e27b3dc30f42d0b6d3eccabf"
+interface IWeatherRemoteSourceImp {
+    val apiKey: String
+
+    suspend fun getCurrentWeather(lat: Double, lon: Double, lang: String): CurrenWeather
+
+    suspend fun getForecastWeather(
+        lat: Double,
+        lon: Double,
+        lang: String
+    ): ForecastWeatherResponse
+}
+
+class WeatherRemoteSourceImp(private val apiService: ApiServices) : IWeatherRemoteSourceImp {
+    override val apiKey = "fafa4312e27b3dc30f42d0b6d3eccabf"
 
     companion object {
         @Volatile
@@ -32,24 +44,22 @@ class WeatherRemoteSourceImp(private val apiService: ApiServices) {
     }
 
 
-    suspend fun getCurrentWeather(lat: Double, lon: Double, lang: String): Flow<CurrenWeather> {
+    override suspend fun getCurrentWeather(lat: Double, lon: Double, lang: String): CurrenWeather {
         ///////////// later correct
-        return flow {val result= apiService.getCurrentWeather(lat, lon, apiKey, lang)
-            emit(result)
-        }
+     //   return flow {val result= apiService.getCurrentWeather(lat, lon, apiKey, lang)
+       //     emit(result)
+     //   }
 
-
+        return apiService.getCurrentWeather(lat, lon, apiKey, lang)
     }
 
-    suspend fun getForecastWeather(
+    override suspend fun getForecastWeather(
         lat: Double,
         lon: Double,
         lang: String
-    ): Flow<ForecastWeatherResponse> {
+    ): ForecastWeatherResponse {
 
-        return flow {val result=  apiService.getForecastWeather(lat, lon, apiKey, lang)
-            emit(result)
-        }
+      return  apiService.getForecastWeather(lat, lon, apiKey, lang)
         }
 
 }

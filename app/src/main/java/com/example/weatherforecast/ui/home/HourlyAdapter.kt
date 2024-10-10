@@ -10,6 +10,7 @@ import com.bumptech.glide.Glide
 import com.example.weatherforecast.databinding.ItemHourlyBinding
 import com.example.weatherforecast.model.ForecastWeatherData
 import com.example.weatherforecast.model.HourlyWeather
+import com.example.weatherforecast.model.getweatherIconResourceId
 
 class HourlyAdapter():  ListAdapter<HourlyWeather, HourlyAdapter.ItemViewHolder>(DiffCallback())  {
     lateinit var binding: ItemHourlyBinding
@@ -28,8 +29,9 @@ class HourlyAdapter():  ListAdapter<HourlyWeather, HourlyAdapter.ItemViewHolder>
         holder.binding.tvTime.text=current.hour
       //  tittleTv.text=current.title
         holder.binding.tvTemperature.text=current.Temp
-
-        Glide.with(holder.itemView.context).load(current.iconImg).into(holder.binding.IconView)
+        current.iconImg?.let { getweatherIconResourceId(it) }
+            ?.let { binding.IconView.setImageResource(it) }
+     //   Glide.with(holder.itemView.context).load(current.iconImg).into(holder.binding.IconView)
 //        holder.binding.
 //        cardView.setOnClickListener { listen.listener(current)
         }

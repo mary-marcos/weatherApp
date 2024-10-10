@@ -36,4 +36,10 @@
     <string name="pressure">الضغط</string>
     <string name="tofavbuttin">حفظ فى المفضله</string>
     <string name="to_sharedpref">حفظ الموقع</string>
+    <string name="alarm"> المنبه</string>
+    <string name="notification"> الاشعارات</string>
+    <string name="select_duration"> حدد الوقت</string>
+    <string name="enable_alert"> منبه</string>
+    <string name="add_alert"> اضافه</string>
+    <string name="dismiss"> خروج</string>
 </resources>

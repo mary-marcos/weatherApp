@@ -21,6 +21,9 @@ import com.example.weatherforecast.databinding.ActivityMainBinding
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
+    companion object {
+        const val REQUEST_CODE_NOTIFICATION_ACCESS = 123
+    }
     private lateinit var drawerToggle: ActionBarDrawerToggle
     lateinit var binding: ActivityMainBinding
     lateinit var  navController:NavController

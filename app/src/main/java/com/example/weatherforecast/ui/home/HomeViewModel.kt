@@ -7,8 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewModelScope
+import com.example.weatherforecast.NetworkCheck
 
-
+import com.example.weatherforecast.model.formatDate
 import com.example.weatherforecast.data.Repo.Repos
 import com.example.weatherforecast.data.Repo.WeatherRemoteSourceImp
 import com.example.weatherforecast.data.SharePrefrenceData
@@ -23,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,7 +52,7 @@ class HomeViewModel( var reposiory:Repos): ViewModel() {
         var sharePrefrenceData=SharePrefrenceData(context)
         viewModelScope.launch(Dispatchers.IO) {
 
-
+            if (NetworkCheck.isNetworkAvailable(context)){
             reposiory.getCurrentWeather(latitude, longitude, sharePrefrenceData.getSavedLanguage()?:"en").map { data ->
                 val currentEntity = CurrentWeatherDataEntity(
                     city = data.name,
@@ -60,11 +62,32 @@ class HomeViewModel( var reposiory:Repos): ViewModel() {
                     humidity = data.main.humidity.toString(),
                     id = data.id,
                     description = data.weather.get(0).description,
-                    iconCode = "https://openweathermap.org/img/wn/${data.weather.get(0).icon}@2x.png",
+                    iconCode =data.weather.get(0).icon,
+                  //  iconCode = "https://openweathermap.org/img/wn/${data.weather.get(0).icon}@2x.png",
                     feelsLike = data.main.feels_like.toString(),
                     pressure = data.main.pressure.toString()
 
                 )
+                try {
+                    val existingData = reposiory.getCurrentWeatherlocal().firstOrNull()
+
+                    if (existingData != null && existingData.isNotEmpty()) {
+                        reposiory.deleteCurrentWeather()
+                    }
+
+               launch {
+                   try {
+                 var k=  reposiory.setCurrentWeather(currentEntity)
+                   Log.d("TAG", "getCurrentWeatherData result insert : $k")
+               }catch (ex: Exception){
+                   Log.d("TAG", "getCurrentWeatherDataaaaaaaaaaaaaaaaaaaa: $ex")  }
+
+               }
+
+                }catch  (ex: Exception){
+                    Log.d("TAG", "getCurrentWeatherData: $ex")}
+
+
                 currentEntity
             }
                 .catch {
@@ -74,6 +97,17 @@ class HomeViewModel( var reposiory:Repos): ViewModel() {
 
                     _currentWeather.value = StateManager.Success(data)
                 }
+            }else{
+                reposiory.getCurrentWeatherlocal().catch { _currentWeather.value = StateManager.Error("No local data available, check network") }
+                .collect{data ->
+                    if (data.isNotEmpty()) {
+                        val current = data[0]
+                        _currentWeather.value = StateManager.Success(current)
+                    } else {
+                        _currentWeather.value = StateManager.Error("No local data available")
+                    }
+                }
+            }
         }
     }
 
@@ -87,7 +121,7 @@ class HomeViewModel( var reposiory:Repos): ViewModel() {
 
 
         viewModelScope.launch(Dispatchers.IO) {
-
+            if (NetworkCheck.isNetworkAvailable(context)){
             reposiory.getForecastWeather(lat, lon, sharePrefrenceData.getSavedLanguage() ?: "en")
                 .map { response ->
 
@@ -96,7 +130,7 @@ class HomeViewModel( var reposiory:Repos): ViewModel() {
                         val weatherIconId = forecastData.weather.firstOrNull()?.icon
 
 
-                        val iconUrl = "https://openweathermap.org/img/wn/${weatherIconId}@2x.png"
+                      //  val iconUrl = "https://openweathermap.org/img/wn/${weatherIconId}@2x.png"
 
 
                       val formattedDate = formatDate(forecastData.dt_txt)
@@ -105,7 +139,7 @@ class HomeViewModel( var reposiory:Repos): ViewModel() {
                         forecastData.copy(
                            dt_txt = formattedDate,
                             weather = forecastData.weather.map {
-                                it.copy(icon = iconUrl)
+                                it.copy(icon = weatherIconId?:"nonimg")
                             }
                         )
                     }
@@ -119,27 +153,22 @@ class HomeViewModel( var reposiory:Repos): ViewModel() {
                     getHourlyWeather(updatedList, sharePrefrenceData)
                     getDailyWeather(updatedList, sharePrefrenceData)
                 }
+        } else{
+            launch {   reposiory.getDailyWeather().catch {
+                _dailyForecastWeather.value = StateManager.Error("no data yet check network") }
+                .collect{data->_dailyForecastWeather.value=StateManager.Success(data)
+                    Log.d("TAG", "getForecastWeathertoShow:$data ")
+                } }
+                launch {  reposiory.getHourlyWeather() .catch {
+                    _hourlyForecastWeather.value = StateManager.Error("no data") }
+                    .collect{data->_hourlyForecastWeather.value=StateManager.Success(data)} }
         }
+        }
+
     }
 
-
-
-
-
-
-
-
-
-    private fun formatDate(dtTxt: String): String {
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
-        val outputFormat = SimpleDateFormat("HH:mm, EEE, MM/dd/yyyy", Locale.getDefault())
-        val date = inputFormat.parse(dtTxt)
-        return outputFormat.format(date)
-    }
 
     private fun getHourlyWeather(list: List<ForecastWeatherData>,sharedpref: SharePrefrenceData): List<HourlyWeather> {
-        val hourlyWeatherList = mutableListOf<HourlyWeather>()
-
 
         val firstItemDate = list.firstOrNull()?.dt_txt?.substring(5, 10) ?: return emptyList()
 
@@ -162,6 +191,12 @@ class HomeViewModel( var reposiory:Repos): ViewModel() {
             )
         }
 
+//handle Local
+        viewModelScope.launch(Dispatchers.IO) {
+            val rowsDeleted = reposiory.deleteAllHourlyWeather()
+            var m=    reposiory.setAllHourlyWeather(result)
+                Log.d("TAG", "getHourlyWeatherrrrrrrrrrrrrrrrrrrrr: $m ")
+        }
 
         _hourlyForecastWeather.value = StateManager.Success(result)
 
@@ -182,9 +217,26 @@ class HomeViewModel( var reposiory:Repos): ViewModel() {
 
             val weatherIconId = weatherItems.first().weather.first().icon
 
-            dailyWeatherList.add(DailyWeather(date, day,"$minTemp/$maxTemp", weatherIconId))
+            dailyWeatherList.add(
+                DailyWeather(
+                    date = date, day = day, minmaxTemp =
+                    "$minTemp/$maxTemp", iconImg =
+                    weatherIconId
+                )
+            )
+
         }
+
         Log.d("TAG", "getDailyWeather: ${dailyWeatherList}")
+//handle Local
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                 reposiory.deleteAllDailyWeather()
+               var resultinsertdaily= reposiory.setAllDailyWeather(dailyWeatherList)
+                Log.d("TAG", "resultinsertdaily:   resultinsertdaily $resultinsertdaily  ")
+            }catch (ec:Exception){
+                Log.d("TAG", "insertDailyWeather:   exceptioooon $ec  ")}
+        }
         _dailyForecastWeather.value = StateManager.Success(dailyWeatherList)
 
         return dailyWeatherList

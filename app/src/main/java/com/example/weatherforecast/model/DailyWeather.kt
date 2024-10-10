@@ -1,14 +1,21 @@
 package com.example.weatherforecast.model
 
-data class DailyWeather(
-    val date: String,      // Date in the format YYYY-MM-DD
-    val day: String,      // day name
-      // Minimum temperature
-    val minmaxTemp: String,   // Maximum temperature
-    val iconImg: String    // URL for the weather icon image
-)
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
+@Entity(tableName = "DailyWeather_table")
+data class DailyWeather(
+    @PrimaryKey(autoGenerate = true)
+    val id:Int=0,
+    val date: String,
+    val day: String,
+    val minmaxTemp: String,
+    val iconImg: String
+)
+@Entity(tableName = "HourlyWeather_table")
 data class HourlyWeather(
+    @PrimaryKey(autoGenerate = true)
+    val id:Int=0,
     val hour: String,
     val Temp: String,
     val iconImg: String

@@ -2,14 +2,16 @@ package com.example.weatherforecast.model
 
 import android.content.Context
 import android.location.Geocoder
+import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.io.Serializable
 
 
 /////////////////////////////////////////
-
+@Entity(tableName = "current_weather_table")
 data class CurrentWeatherDataEntity(
 
+    @PrimaryKey
     val id: Int = 0,
     var city: String?,
     var temp: String?,

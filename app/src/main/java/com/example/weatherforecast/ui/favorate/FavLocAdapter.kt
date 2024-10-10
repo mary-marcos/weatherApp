@@ -45,7 +45,7 @@ class FavLocAdapter(var oncflicked:onFavClicked ) : ListAdapter<FavItem, FavLocA
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val current=getItem(position)
         holder.binding.favlocation=current
-        holder.binding.deleteIcon.setOnClickListener {  oncflicked.deletitem(current)}
+        holder.binding.deleteIcon.setOnClickListener { oncflicked.deletitem(current) }
         holder.itemView.setOnClickListener {oncflicked.respond(current) }
        // holder.binding.action=oncflicked
 
